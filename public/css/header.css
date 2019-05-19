@@ -1,0 +1,206 @@
+header {
+  font-family: Roboto;
+  font-size: 1vh;
+  font-weight: bold;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+}
+
+.main-header {
+	position: fixed;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	margin: 0;
+	top: 0;
+	height: 9.2vw;
+	width: 100%;
+
+	border-bottom-style: solid; 
+	border-bottom-color: #313538; 
+	border-bottom-width: 2vw;
+	
+	background-color: #FFFFFF;
+	z-index:15;
+}
+
+.header-icon-link{
+	order: 1;
+	flex-grow: 1;
+	width: 13.5vw;
+	height: 2.5vw;
+	margin-left: 3vw;
+}
+
+.header-icon {
+/*	order: 1;
+	flex-grow: 1;*/
+	width: 13.5vw;
+	height: 2.5vw;
+/*	margin-left: 3vw;*/
+}
+
+.navigation-list {
+	order: 2;
+	flex-grow: 1;
+
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content:space-around;
+
+	width: ;
+	list-style: none;
+	padding-left: 0;
+	margin-left: 5vw;
+}
+
+.navigation-list li {
+	padding-left:2vw;
+
+	border-left-width: 1px;
+	border-left-style: solid;
+	border-left-color: #3f3a3a;
+}
+
+.navigation-list li a{
+	width: 100px;
+	height: 28px;
+	font-family: PingFangTC;
+	font-size: 1.3vw;
+	font-weight: normal;
+	font-style: normal;
+	font-stretch: normal;
+	line-height: normal;
+	letter-spacing: 1.5vw;
+/*	text-align: center;*/
+	text-decoration:none;
+	color: #3f3a3a;
+}
+
+.flex-container {
+	order: 3;
+	flex-grow: 1;
+	width: 30vw;
+}
+
+.header-right-wrapper {
+	order: 4;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-around;
+
+	width: 20vw;
+
+	margin-right: 3vw;
+} 
+
+.header-right-wrapper .header-search {
+	order: 1;
+  	width: 11vw;
+  	height: 2.3vw;
+
+  	border: solid 1px #979797;
+  	border-radius: 50px;
+
+  	padding-left: 1vw;
+  	padding-right: 2.3vw;
+
+  	background-image: url('../image/search.png');
+  	background-repeat: no-repeat;
+  	background-position: right 6px center;
+  	background-size: 2vw;
+}
+
+
+
+.header-right-wrapper img {
+	order: 1;
+	width: 2.3vw;
+  	height: 2.3vw;
+}
+
+#member-detail-icon {
+	content: url('../image/member.png');
+}
+
+#member-detail-icon:hover{
+	content: url('../image/member-hover.png');
+}
+
+/*做出側滑效果 css*/
+#member-detail-sidebar {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	align-items: center;
+
+	justify-content: space-around;
+
+	background: #313538;
+	width: 20%;
+	height: 100%;
+	display: none;
+	position: fixed;
+	top:0;
+	right:0;
+}
+
+#member-detail-content {
+	width: 100%;
+	padding-left: 10%;
+}
+
+#member-detail-content input {
+	display: none;
+}
+
+#check-account-result {
+	font-family: PingFangTC;
+	font-size: 16px;
+	text-align: left;
+  	color: #f5f5f5;
+}
+
+/* css 做的 close icon */
+#member-close-icon-div {
+	width: 100%;
+	height: 1vw;
+}
+
+.close {
+  position: absolute;
+  right: 10%;
+  top: 2%;
+  width: 5%;
+  height: 5%;
+  opacity: 0.3;
+  display: none;
+}
+.close:hover {
+  opacity: 1;
+}
+.close:before, .close:after {
+  position: absolute;
+  left: 15px;
+  content: ' ';
+  height: 33px;
+  width: 2px;
+  background-color: #FFF;
+}
+.close:before {
+  transform: rotate(45deg);
+}
+.close:after {
+  transform: rotate(-45deg);
+}
+
+
+

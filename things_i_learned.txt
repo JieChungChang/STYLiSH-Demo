@@ -1,0 +1,108 @@
+1. MYSQL 無法存中文問題:
+一般來說要能支援中文 SQL 的 column datatype 要是 NVARCHAR，VARCHAR 僅能支持英文，文獻參考如下：
+https://my.oschina.net/leejun2005/blog/343353
+
+簡體中文使用 utf8 編碼 佔位符3 但是要能存繁體中文 佔位符4 用utf8mb4
+
+MYSQL 8.0 備份 在 5.7 復原問題： 
+ a. 8.0 的 dump.sql 編碼 5.7 不支援：utf8mb4_general_ci for 5.7, utf8mb4_0900_ai_ci for 8.0
+    https://dev.mysql.com/doc/refman/5.7/en/charset-connection.html
+    5.7 用 utf8mb4_general_ci
+    8.0 用 utf8mb4_0900_ai_ci
+
+===== 資料存的進去 MYSQL 但是會顯示??? ====
+
+ b. 需要修改 my.cfg 檔案
+    https://stackoverflow.com/questions/3513773/change-mysql-default-character-set-to-utf-8-in-my-cnf
+ c. 修改後查看 資料庫 目前編碼設定
+    show variables like '%char%';
+ d. 修改資料表編碼
+    ALTER TABLE 【table_name】 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; 
+ e. 查看各個資料表目前編碼 
+    SELECT `tables`.`TABLE_NAME`, `collations`.`character_set_name` FROM `information_schema`.`TABLES` AS `tables`,  `information_schema`.`COLLATION_CHARACTER_SET_APPLICABILITY` AS `collations` WHERE `tables`.`table_schema` = DATABASE()  AND `collations`.`collation_name` = `tables`.`table_collation`;
+ 
+ *補充1: 暫時讓資料庫可以顯示 utf8mb4 https://mathiasbynens.be/notes/mysql-utf8mb4
+ *補充2: 資料庫備份還原 https://code.yidas.com/mysqldump/
+
+2. get and post request 差異:
+ https://cnodejs.org/topic/50a333d7637ffa4155c62ddb
+ a. post 會傳表單資料，會存在 req.body
+ b. get 用 url 傳送資料 req.query
+
+3. multer package 的坑:
+ 用 multer 上傳檔案，資料格式會轉成特殊形式所以想用 ajax(xhr) 來傳檔案，formdata 會無法被 multer 解析。目前暫時無能力用 ajax 做，照片上傳的工作。
+
+ * multer 的相關資料：
+    https://www.open-open.com/lib/view/open1478591735838.html
+    https://github.com/expressjs/multer 
+
+4. pm2 執行的坑:
+ pm2 執行 index.js 時 multer 的指定上傳路徑要使用絕對路徑，不能使用相對路徑。
+
+ * 補充 pm2 相關操作指令: 
+   英文 http://pm2.keymetrics.io/docs/usage/quick-start/
+   中文 https://www.cnblogs.com/chyingp/p/pm2-documentation.html
+
+5. git 知識: 
+ how to revert commit: https://medium.com/@rkfecode/%E8%AE%93%E4%BD%A0%E7%9A%84%E4%BB%A3%E7%A2%BC%E5%9B%9E%E5%88%B0%E9%81%8E%E5%8E%BB-git-reset-%E8%88%87-git-revert-%E7%9A%84%E7%94%A8%E8%99%95-6ba4b7545690
+
+6. javascript 判斷問題：
+  在判斷式的時後原本想判斷如如果有欄位是空的時候就不上傳，所以寫了類似 if (price) / if (quantity) 的判斷式，可是當 price 或是 quantity 為 0 的時候都會判斷 false。
+
+7. AWS 在背景執行 index.js 使用 screen：
+   新增 screen
+   screen 
+
+   列出所有 screen 
+   screen -ls
+
+   進入 screen
+   screen -r [screen_name]
+
+   離開 screen 
+   ctrl + A + D  
+
+8. Express 路由時 : 會跟正常路徑 重複 
+
+9. MYSQL Query 跟 Express 路由內會有有異步處理的問題，不同 function 會同時處理
+
+10. AWS 登入：
+    在 .ssh/ 路徑下執行  ssh -i MyKeyPair.pem ec2-user@ec2-54-70-68-128.us-west-2.compute.amazonaws.com
+
+11. User 在登錄的時侯後端會產生一個 Access Token 跟 Token Expired 並存在 cookies 中，在頁面切換的時候後端都會驗證這個 Access token.
+    https://ithelp.ithome.com.tw/users/20107420/ironman/1381
+
+    11-1. Access Token 會在每次登入的時候更新，並且後端會給 Access_Token 新的有效期限
+    11-2. 未來如果有任何 request 會使用 Cookies 中的 Access_Token，例如：查詢資料， 會把 access_token 放在 request header 中並送到後端處理:
+    WEB 送 Token 到後端的詳細解釋：
+    http://0x3f.org/post/introduction-of-json-web-token/
+    
+    前端如何取得當前 cookies 值：https://stackoverflow.com/questions/29838539/how-to-store-access-token-value-in-javascript-cookie-and-pass-that-token-to-head 
+    XHR 如何送 bearer Token 到後端：
+        如何做一個 bearer token: https://stackoverflow.com/questions/40454256/usage-of-bearer-tokens-in-https-request
+        完整寫法： https://stackoverflow.com/questions/33545779/xmlhttprequest-setrequestheader-for-each-request
+    後端如何取得 request header 內的 Access_Token: https://stackoverflow.com/questions/13147693/how-to-extract-request-http-headers-from-a-request-using-nodejs-connect
+    後端如何解析 bearer token (用substring): https://stackoverflow.com/questions/50284841/how-to-extract-token-string-from-bearer-token
+    
+    *補充：https://ithelp.ithome.com.tw/articles/10197166
+
+12. 前後端 資料傳遞 的常見的 4種格式（header: content-type）:
+    https://imququ.com/post/four-ways-to-post-data-in-http.html
+
+    12-1. 目前作業需求就是用 JSON 傳送到後端，再由後端回傳 JSON 到前端，而從前端傳 JSON 到後端的辦法有兩種：
+    XHR 方法: https://stackoverflow.com/questions/24468459/sending-a-json-to-server-and-retrieving-a-json-in-return-without-jquery
+    
+    Fetch 方法: https://stackoverflow.com/questions/29775797/fetch-post-json-data/42493030#42493030
+
+    而 fetch 是比較新的技術，優點是不像 XHR 每次做 request 就要產生一個實例，建議用這個方法
+
+13. HTML 跟 Javascript form 送 request 時要注意的事情：
+    13-1 同一個 form 多個 button 都不同 action 的用法: <button formaction="後端路由位置">
+    13-2 如果 javascript 的 function 已經有定義 request (POST/ GET) HTML 的 form 或是 button 就不要再另外定義 method 或 action 了，不然同一個 request 會執行兩次！
+
+14. Docker 安裝/ 解除教學：
+https://oomusou.io/docker/docker-for-mac/
+
+
+
+

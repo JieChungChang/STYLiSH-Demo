@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>新增產品庫存</title>
+	<style type="text/css">
+		.varient-box {
+			width:50%;
+			border-style: solid;
+			border-width: 1px;
+			padding-bottom: 10px;
+		}
+	</style>
+</head>
+<body>
+	<form action="/admin/addProductStock" method="post">
+		<h2>新增產品庫存</h2>
+		<p><label>Product ID</label>   <input type="text" name="main_assign_id" required>
+		<p><label>Product Name</label> <input type="text" name="mainTitle">
+    	<br>
+    	<br>
+		<h3>The colors you want to add to stock</h3> 
+    	<div id="color-box">
+    		<label>Color code</label> <input type="text" name="colorCode" id="colorCodeField" required>
+    		<label>Color name</label> <input type="text" name="colorName" id="colorNameField" required>
+    	<br>
+    	<br>
+    	<br>
+	    	<div class="varient-box" id="varient-box">
+		    	<h3>The size you want to add to stock</h3> 
+	    		<input type="button" onclick="addStockBox()" name="addVarient" value="新增尺寸庫存">
+				<input type="button" onclick="delStockBox()" name="deleteVarient" value="刪除尺寸庫存">
+				Vavrient count: <label id="varient-count">1</label>
+				<br>
+	    		<br>
+		    	<div id="stock-box0" class="stock-box">
+		    		<label>Size</label> <input type="text" name="size" id="sizeField0" required> 
+					<label>Quantity</label> <input type="text" name="quantity" id="quantityField0" required> 
+				</div>
+			</div>
+		</div>
+
+		<br>
+		<p><input type="submit" value="新增庫存">
+	</form>
+	<br>
+	<br>
+	<a href="/admin">返回主頁</a><br>
+	<script>
+		let currentStockBox = 0;
+
+		function delStockBox() {
+			if ( currentStockBox>0 ) {
+				let varientDiv   = document.getElementById("stock-box" + currentStockBox);
+				varientDiv.remove();
+				currentStockBox--;
+
+				let varientCountLabel = document.getElementById("varient-count");
+				varientCountLabel.textContent = currentStockBox + 1;
+			}
+		}
+
+		function addStockBox() {
+			currentStockBox++;
+
+			let varientDiv = document.getElementById("varient-box");
+
+			let stockDiv   = document.createElement("div");
+			stockDiv.setAttribute("id","stock-box" + currentStockBox);
+			stockDiv.setAttribute("class","stock-box");
+
+			let sizeLabel = document.createElement("label");
+			let sizeText  = document.createTextNode("Size");
+			sizeLabel.appendChild(sizeText);
+			stockDiv.appendChild(sizeLabel);
+
+			let sizeField = document.createElement("input");
+			sizeField.setAttribute("type","text");
+			sizeField.setAttribute("name","size");
+			sizeField.setAttribute("id","sizeField" + currentStockBox);
+			sizeField.setAttribute("required","");
+			stockDiv.appendChild(sizeField);
+			
+			let quantityLabel = document.createElement("label");
+			let quantityText  = document.createTextNode("Quantity");
+			quantityLabel.appendChild(quantityText);
+			stockDiv.appendChild(quantityLabel);
+
+			let quantityField = document.createElement("input");
+			quantityField.setAttribute("type","text");
+			quantityField.setAttribute("name","quantity");
+			quantityField.setAttribute("id","quantityField" + currentStockBox);
+			quantityField.setAttribute("required","");
+			
+			stockDiv.appendChild(quantityField);
+
+			varientDiv.appendChild(stockDiv);
+
+			let varientCountLabel = document.getElementById("varient-count");
+			varientCountLabel.textContent = currentStockBox + 1;
+		}
+
+	</script>
+</body>
+</html>

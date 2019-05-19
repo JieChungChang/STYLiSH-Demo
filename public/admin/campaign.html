@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stylish Campaign Management</title>
+<style>
+	body{
+		font-size:16px;
+		font-family:"Noto Sans TC", "微軟正黑體", "新細明體", arial, sans-serif;
+		color:#3f3a3a;line-height:2.5em;
+	}
+
+	textarea{
+		width:400px;height:100px;padding:5px;
+	}
+
+	input{
+		width:300px;padding:5px;
+	}
+</style>
+</head>
+<body>
+	<h3>Create a New Campaign</h3>
+	<form method="post" action="/admin/campaign/createcampaign" enctype="multipart/form-data"">
+		Product ID <input type="text" name="assign_id" /><br/>
+		Picture <input type="file" name="picture" required/><br/>
+		Story<br/>
+		<textarea name="story"></textarea><br/>
+		<br/>
+		<input type="submit" value="新增"/>
+	</form>
+	<br/>
+	<a href="/admin">返回主頁</a><br>
+</body>
+</html>

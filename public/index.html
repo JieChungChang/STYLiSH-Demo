@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>STYLiSH</title>
+	<link href='https://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+	<link href="css/main.css" rel="stylesheet">
+	<link href="css/header.css" rel="stylesheet">
+	<link href="css/footer.css" rel="stylesheet">
+</head>
+<body>
+	<header class="main-header clearfix">
+		<a class="header-icon-link" href="/"><img class="header-icon" alt="STYLiSH icon" src="image/logo.png"></a>
+		
+		<ul class="navigation-list">
+         	<li style="border-left-style: none; padding-left: 0;"><a href="#">女裝</a></li>
+            <li><a href="#">男裝</a></li>
+            <li><a href="#">配件</a></li>
+        </ul>
+
+        <div class="flex-container"></div>
+        
+        <div class="header-right-wrapper">
+			<input class="header-search" type="text" name="text-input">
+			<img src="image/cart.png">
+			<img id="member-detail-icon">
+		</div>
+
+		<div id="member-detail-sidebar">
+			<div id = "member-close-icon-div">
+				<a class="close"></a>
+			</div>
+
+			<div id="member-detail-content">
+				<p id="check-account-result"></p>
+				<input type="button" value="查看個人資料" id="user-profile-button">
+				<input type="button" value="登入" id="sign-in-button">
+				<input type="button" value="登出" id="log-out-button">
+			</div>
+
+		</div>
+
+	</header>
+
+	<div class="body-banner" id="story-banner">
+		<h2 class="banner-story-main" id="story-banner-text"></h2>
+	</div>
+
+	<div class="body-product" id="product-list"></div>
+			
+	<footer class="main-footer">
+		<ul class="footer-navigation-list">
+         	<li><a href="#" style="border-left-style: none; padding-left: 0;">關於 STYLiSH</a></li>
+            <li><a href="#">服務條款</a></li>
+            <li><a href="#">隱私政策</a></li>
+            <li><a href="#">聯絡我們</a></li>
+            <li><a href="#">FAQ</a></li>
+        </ul>
+        <div class="image-box">
+        	<img src="image/line.png">
+        	<img src="image/twitter.png">
+        	<img src="image/facebook.png">
+        </div>
+        <span class="copyright">&copy;2018 All rights reserved.</span>
+	</footer>
+
+	<script type="text/javascript">
+		// let apiPath        = "https://api.appworks-school.tw";
+		let apiPath        = "http://localhost";
+		let apiVersionPath = "/api/1.0";
+
+		function loadPage() {
+			let config = {
+				method: 'GET',
+				mode: 'cors'
+			}
+
+			//api 抓 campaigns 資料
+			let campaign = fetch(apiVersionPath + '/marketing/campaigns', config).then(
+				
+				function(response) {
+					if (response.status !== 200) {
+						return 'Looks like there was a problem. Status Code: ' + response.status;
+					}
+
+					response.json().then(function(data) {
+
+						let banner = document.getElementById("story-banner");
+						let campaignData  = data.data[0];
+						let bannerPicture = campaignData.picture;
+						let bannerStory   = campaignData.story;
+
+						let bannerPTag = document.getElementById("story-banner-text");
+						let bannerStoryText = document.createTextNode(bannerStory);
+						bannerPTag.appendChild(bannerStoryText);
+
+						banner.setAttribute("style","background-image: url(" + bannerPicture + ")");
+
+					})
+				}
+			)
+			//api 抓 product all 資料
+			let productData = fetch(apiVersionPath + '/products/all', config).then(
+
+				function(response) {
+					if (response.status !== 200) {
+						return 'Looks like there was a problem. Status Code: ' + response.status;
+					}
+
+					response.json().then(function(data) {
+						let productData = data.data;
+						let productBox  = document.getElementById("product-list");
+
+						for(let i = 0; i < productData.length; i++){
+							let div = document.createElement("div");
+							div.setAttribute("class","productDiv");
+							div.setAttribute("id","div"+i);
+							productBox.appendChild(div);
+							let productDiv = document.getElementById("div"+i);
+
+							let imgLink = document.createElement("a");
+							imgLink.setAttribute("href",apiPath + "/product.html?id=" + productData[i].id);
+							imgLink.setAttribute("id","imgLinkA" + i);
+							productDiv.appendChild(imgLink);
+							let imgLinkA = document.getElementById("imgLinkA" + i);
+
+							let img = document.createElement("img");
+							img.setAttribute("class","productImg");
+							img.setAttribute("src",productData[i].main_image);
+							imgLinkA.appendChild(img);
+
+
+							let subDiv = document.createElement("div");
+							subDiv.setAttribute("class","colorDiv");
+							subDiv.setAttribute("id","subDiv"+i);
+							productDiv.appendChild(subDiv);
+							let colorDiv = document.getElementById("subDiv"+i);
+
+							for (let j=0; j < productData[i].colors.length; j++) {
+								let color = document.createElement("div");
+								color.setAttribute("class","color");
+								color.setAttribute("style","width: 24px; height: 24px; background-color: #" + productData[i].colors[j].code + ";");
+								colorDiv.appendChild(color);
+							}
+
+							let productTitle = document.createElement("p");
+							productTitle.setAttribute("class","productTitle");
+							let productText = document.createTextNode(productData[i].title);
+							productTitle.appendChild(productText);
+							productDiv.appendChild(productTitle);
+
+							let productPrice = document.createElement("p");
+							productPrice.setAttribute("class","productPrice");
+							let priceText = document.createTextNode("TWD." + productData[i].price);
+							productPrice.appendChild(priceText);
+							productDiv.appendChild(productPrice);
+						}
+					});
+				}
+			)   			
+		}
+		
+		loadPage();
+	</script>
+	<script type="text/javascript" src="js/checkAccount.js"></script>
+</body>
+</html>

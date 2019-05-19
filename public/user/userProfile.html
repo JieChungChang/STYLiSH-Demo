@@ -1,0 +1,123 @@
+<head>
+	<meta charset="utf-8">
+	<title>STYLiSH-Sign Up</title>
+	<link href='https://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+	<link href="../css/sign.css" rel="stylesheet">
+	<link href="../css/header.css" rel="stylesheet">
+	<link href="../css/footer.css" rel="stylesheet">
+</head>
+<body>
+	<header class="main-header clearfix">
+		<a class="header-icon-link" href="/"><img class="header-icon" alt="STYLiSH icon" src="../image/logo.png"></a>
+		
+		<ul class="navigation-list">
+         	<li style="border-left-style: none; padding-left: 0;"><a href="#">女裝</a></li>
+            <li><a href="#">男裝</a></li>
+            <li><a href="#">配件</a></li>
+        </ul>
+
+        <div class="flex-container"></div>
+        
+        <div class="header-right-wrapper">
+			<input class="header-search" type="text" name="text-input">
+			<img src="../image/cart.png">
+			<img id="member-detail-icon">
+		</div>
+
+		<div id="member-detail-sidebar">
+			<div id = "member-close-icon-div">
+				<a class="close"></a>
+			</div>
+
+			<div id="member-detail-content">
+				<p id="check-account-result"></p>
+				<input type="button" value="查看個人資料" id="user-profile-button">
+				<input type="button" value="登入" id="sign-in-button">
+				<input type="button" value="登出" id="log-out-button">
+			</div>
+
+		</div>
+
+	</header>
+
+	<div class="main-content">
+		<div class="sign-heading">使用者資料</div>
+
+		<div class="input-box ">
+			<label>會員編號</label>
+			<label class="memberInfo" id="memberID"/>
+		</div>
+
+		<div class="input-box">
+			<label>Name</label>
+			<label class="memberInfo" id="name" ="name"/>
+		</div>
+		
+		<div class="input-box">
+			<label>e-mail</label>
+			<label class="memberInfo" id="email"/>
+		</div>
+		
+		<div class="button-box">
+			<button type="submit" id="logOut">登出</button>
+		</div>
+
+		<div id="status"></div>
+		<div id='result'></div>
+	</div>
+
+
+<script type="text/javascript">
+	function pageLoad(){
+		let accessToken = "";
+		accessToken  = document.cookie.split('access_token=')[1];
+	
+		if ( accessToken ) {
+
+			console.log(document.cookie);
+			
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "/api/1.0/user/profile", false);
+			xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+
+			xhr.onreadystatechange = function () {
+			    if (xhr.readyState === 4 && xhr.status === 200) {
+			        var result = xhr.responseText;
+					// document.getElementById('result').innerHTML = result;
+
+					result = JSON.parse(result);
+					document.getElementById('memberID').innerText = result.data.user.id;
+					document.getElementById('email').innerText = result.data.user.email;
+					document.getElementById('name').innerText = result.data.user.name;
+			    }
+			};
+			
+			xhr.send();
+
+		} else {
+			document.location.replace('/user/sign.html');
+
+		}
+	}
+
+	let logOutBTN   = document.querySelector("#logOut");
+	logOutBTN.onclick = function(){
+
+		let res = document.cookie;
+		let multiple = res.split(";");
+
+		for (let i = 0; i < multiple.length; i++) {
+			
+		   	let key = multiple[i].split("=");
+		   	console.log(key);
+		   	document.cookie = key[0]+" =; path = /; expires = Thu, 01 Jan 1970 00:00:00 UTC";
+		}
+
+		pageLoad();
+	}
+
+	pageLoad();
+</script>
+<script type="text/javascript" src="../js/checkAccount.js"></script>
+</body>
+</html>

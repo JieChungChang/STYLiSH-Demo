@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>STYLiSH-Product</title>
+	<link href='https://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+	<link href="css/details.css" rel="stylesheet">
+	<link href="css/header.css" rel="stylesheet">
+	<link href="css/footer.css" rel="stylesheet">
+</head>
+<body>
+	<header class="main-header clearfix">
+		<a class="header-icon-link" href="/"><img class="header-icon" alt="STYLiSH icon" src="image/logo.png"></a>
+		
+		<ul class="navigation-list">
+         	<li style="border-left-style: none; padding-left: 0;"><a href="#">女裝</a></li>
+            <li><a href="#">男裝</a></li>
+            <li><a href="#">配件</a></li>
+        </ul>
+
+        <div class="flex-container"></div>
+        
+        <div class="header-right-wrapper">
+			<input class="header-search" type="text" name="text-input">
+			<img src="image/cart.png">
+			<img id="member-detail-icon">
+		</div>
+
+		<div id="member-detail-sidebar">
+			<div id = "member-close-icon-div">
+				<a class="close"></a>
+			</div>
+
+			<div id="member-detail-content">
+				<p id="check-account-result"></p>
+				<input type="button" value="查看個人資料" id="user-profile-button">
+				<input type="button" value="登入" id="sign-in-button">
+				<input type="button" value="登出" id="log-out-button">
+			</div>
+
+		</div>
+
+	</header>
+
+	<div class="detail-box">
+
+		<div class="top"> 
+			<div class="main-image" id="mainImage"></div>
+			<div class="information">
+				<p class="title" id="title"></p>
+				<p class="id" id="id"></p>
+				<p class="price" id="price"></p>
+				<hr style="width: 100% height: 1px; background: #3f3a3a;">
+				
+
+				<div class="varients">
+					<div class="varients-info" id="colors">
+						<p>顏色</p>
+					</div>
+
+					<div class="varients-info" id="sizes">
+						<p>尺寸</p>
+						<div class="radio-toolbar" id="sizes-radio-toolbar"></div>
+					</div>
+
+					<div class="varients-info" id="amount">
+						<p>數量</p>
+						<div class="productStocks">
+							<label onclick="minusAmount()">-</label>
+							<label id="productAmount">0</label>
+							<label onclick="addAmount()">+</label>
+						</div>
+					</div>
+
+					<input type="button" id="addToCart" onclick="getShoppingDetails()" value="購買">
+
+					<div class="information-others">
+						<p id="note"></p>
+						<p id="texture"></p>
+						<p id="place"></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="middle">
+			<p>細部說明</p>
+			<hr style="width: 83%; height: 1px; background-color: #3f3a3a;">
+		</div>
+
+		<div class="bottom" id="detailBottom"></div>
+		
+	</div>
+
+
+	<footer class="main-footer">
+		<ul class="footer-navigation-list">
+         	<li><a href="#" style="border-left-style: none; padding-left: 0;">關於 STYLiSH</a></li>
+            <li><a href="#">服務條款</a></li>
+            <li><a href="#">隱私政策</a></li>
+            <li><a href="#">聯絡我們</a></li>
+            <li><a href="#">FAQ</a></li>
+        </ul>
+        <div class="image-box">
+        	<img src="image/line.png">
+        	<img src="image/twitter.png">
+        	<img src="image/facebook.png">
+        </div>
+        <span class="copyright">&copy;2018 All rights reserved.</span>
+	</footer>
+
+	<script type="text/javascript">
+		//API 位置
+		// let apiPath        = "https://api.appworks-school.tw";
+		let apiPath        = "http://localhost";
+		let apiVersionPath = "/api/1.0";
+
+
+		let productDetailData = {};
+		let sizeStockObj      = {}; // 會根據選了什麼顏色而改變
+
+		//隨時記錄 選擇的顏色，以及該顏色需要被隱藏的尺寸
+		let colorSelectedID  = "";
+		let sizeSelectedID  = "";
+		let invisibleSizeIDArray = [];
+
+		//隨時紀錄庫存
+		let selectedItemStock=0;
+
+		//交易時需要用到的資料
+		let shoppingList  = [];
+
+		function openChild(){
+			let childWin = window.open('/admin/checkout.html','newwindow','height=800,width=400,top=0,left=0,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=no,status=no');
+			let timer = setInterval(checkChild, 500);
+
+			setTimeout(function() {
+		        if (childWin != null && !childWin.closed) {
+		            
+		            var childShoppingList = childWin.document.querySelector('#curl');
+		            childShoppingList.innerHTML = JSON.stringify(shoppingList);
+		            childWin.focus();
+		        
+		        } else {
+		            alert("Payment finished.");
+		            window.location.reload();
+		        };
+		    },5000);  
+
+		    function checkChild(){
+				if (childWin.closed) {
+			        alert("Payment finished.");   
+			        clearInterval(timer);
+			        window.location.reload();
+			    }  
+			}
+		}
+
+		function getShoppingDetails() {
+			let productObj   = {};
+			productObj.id    = document.getElementById("id").innerText;
+			productObj.name  = document.getElementById("title").innerText
+			productObj.price = parseInt(document.getElementById("price").innerText.substring(5));
+			
+			productObj.color = {};
+			
+			for ( i = 0; i<productDetailData.colors.length; i++ ){
+				if ( productDetailData.colors[i].code ===  colorSelectedID ) {
+					productObj.color.name = productDetailData.colors[i].name;
+				}
+			};
+
+			productObj.color.code = colorSelectedID;
+			productObj.size = sizeSelectedID;
+			productObj.qty  = parseInt(document.getElementById("productAmount").innerText);
+
+			shoppingList.push(productObj);
+
+			console.log(shoppingList);
+
+			openChild();
+		}
+
+		function minusAmount() {
+			let productAmount = parseInt(document.getElementById("productAmount").innerText);
+
+			if ( productAmount > 0 ) {
+				productAmount -= 1
+				document.getElementById("productAmount").innerText = productAmount;
+			}
+		}
+
+		function addAmount() {
+			let productAmount = parseInt(document.getElementById("productAmount").innerText);
+			
+			if ( productAmount < selectedItemStock ) {
+				productAmount += 1
+				document.getElementById("productAmount").innerText = productAmount;
+			}
+
+		}
+
+		function selectSize(va) {
+			let sizeLabels = document.getElementsByClassName("sizeLabel");
+		    let variants   = productDetailData.variants;
+		    document.getElementById("productAmount").innerText = "0";
+
+		    for(let i=0; i<sizeLabels.length; i++){
+
+			    let d=sizeLabels[i];
+
+			    if( va === d.id ){
+			    	d.style.color = "#ffffff";
+  					d.style.backgroundColor = "#000000";
+
+			    } else if ( invisibleSizeIDArray.indexOf(d.id) > -1 ) {
+			    	d.style.color = "#ffffff";
+  					d.style.backgroundColor = "#ffffff";
+
+			    } else {
+			    	d.style.color = "#3f3a3a";
+  					d.style.backgroundColor = "#ececec";
+			    }
+		    }
+
+		    va = va.substring(5);
+		    sizeSelectedID = va;
+		    selectedItemStock = sizeStockObj[va];
+
+
+		}
+
+		function createVarientSizes() {
+			let sizes = productDetailData.sizes;
+			let sizesDiv = document.getElementById("sizes-radio-toolbar");
+	
+			for( let i=0; i<sizes.length; i++ ){
+				let size = document.createElement("input");
+				size.setAttribute("type","radio");
+				size.setAttribute("id","radio"+sizes[i]);
+				size.setAttribute("name","radios");
+				size.setAttribute("class","sizeRadio");
+				size.setAttribute("value","all");
+				size.setAttribute("onclick","selectSize('label" + sizes[i] + "')");
+
+				let sizeLabel = document.createElement("label");
+				sizeLabel.setAttribute("for","radio"+sizes[i]);
+				sizeLabel.setAttribute("class","sizeLabel");
+				sizeLabel.setAttribute("id","label"+sizes[i]);
+
+				let sizeText = document.createTextNode(sizes[i]);
+				sizeLabel.appendChild(sizeText);
+				sizesDiv.appendChild(size);
+				sizesDiv.appendChild(sizeLabel);
+			}
+
+
+		}
+		
+		function resetSizeRadioButtonStyle() {
+			let sizeLabelArray = document.getElementsByClassName("sizeLabel");
+
+			for ( let i=0; i<sizeLabelArray.length; i++ ) {
+				sizeLabelArray[i].style.backgroundColor = "#ececec";
+				sizeLabelArray[i].style.color = "#3f3a3a";
+			}
+
+			let sizeRadioArray = document.getElementsByClassName("sizeRadio");
+
+			for ( let i=0; i<sizeRadioArray.length; i++ ) {
+				sizeRadioArray[i].disabled = false;
+			}
+		}
+
+		function bgc(va){
+			//讓尺寸的 radio button 的 style 恢復成預設值
+			resetSizeRadioButtonStyle();
+			invisibleSizeIDArray = []; //先清空
+			selectedItemStock=0;
+			document.getElementById("productAmount").innerText = "0";
+
+		    let divs     = document.getElementsByClassName("color");
+		    let variants = productDetailData.variants;
+
+		    for(let i=0;i<divs.length;i++){
+			    let d=divs[i];
+			    if( va === d.id ){
+			    	colorSelectedID = d.id;
+					d.style.border="2px solid #979797";
+
+				    //size stock object start
+				    sizeStockObj={}; //先清空上一次選的
+				    for ( let i=0; i<variants.length; i++ ) {
+				    	if ( variants[i].color_code === d.id  &&  !Object.keys(sizeStockObj).includes(variants[i].size) ) {
+				    		sizeStockObj[variants[i].size] = variants[i].stock;
+				    	} 
+				    }
+				    console.log(sizeStockObj);
+				    //size stock object end
+
+
+			    } else {
+			    	d.style.border="0px";
+
+			    }
+		    }
+
+		    //size stock object start
+		    let sizeLabelArray = document.getElementsByClassName("sizeLabel");
+
+		    for ( let i=0; i<sizeLabelArray.length; i++ ) {
+		    	let sizeNowText = sizeLabelArray[i].innerText;
+
+		    	if ( sizeStockObj[sizeNowText] === 0 || !sizeStockObj[sizeNowText] ) {
+		    		let sizeNowLabelElement = document.getElementById("label" + sizeNowText);
+		    		invisibleSizeIDArray.push("label" + sizeNowText);
+
+		    		let sizeNowRadioElement = document.getElementById("radio" + sizeNowText);
+		    		sizeNowRadioElement.setAttribute("disabled","true");
+
+		    		sizeNowLabelElement.style.backgroundColor = "#FFF";
+		    		sizeNowLabelElement.style.color = "#FFF";
+		    	}
+		    }
+		    //size stock object end
+		}
+
+		function createVarientColors() {
+			let colors    = productDetailData.colors;
+			let colorsDiv = document.getElementById("colors");
+
+			for (let i=0; i < colors.length; i++) {
+	
+				let color = document.createElement("div");
+				color.setAttribute("class","color");
+				color.setAttribute("id",colors[i].code);
+				color.setAttribute("onclick","bgc('" + colors[i].code + "')");
+				color.setAttribute("style","width: 24px; height: 24px; background-color: #" + colors[i].code + ";");
+				colorsDiv.appendChild(color);
+	        
+	        }
+		}
+
+		function createOtherImages() {
+			let imagesData   = productDetailData.images;
+			let storyText        = productDetailData.story;
+			let detailBottom = document.getElementById("detailBottom");
+
+			for ( let i = 0; i < imagesData.length; i++ ) {
+				
+				let story = document.createElement("p");
+				story.setAttribute("id","story" + i);
+	        	detailBottom.appendChild(story);
+
+	        	// let storyPTag = document.getElementById("story" + i);
+			    let storyTextNode = document.createTextNode(storyText);
+			    story.appendChild(storyTextNode);
+
+				let image = document.createElement("img");
+	        	image.setAttribute("src",imagesData[i]);
+	        	image.setAttribute("id","otherImage" + i);
+	        	image.setAttribute("style","max-width: 100%; max-height: 35vw");
+	        	detailBottom.appendChild(image);
+			}
+
+		} 
+
+		function loadProductDetails(id) {
+			let config = {
+				method: 'GET',
+			    mode: 'cors'
+			}
+
+			let campaign = fetch(apiPath + apiVersionPath + '/products/details?id=' + id, config).then(
+				function(response) {
+					if (response.status !== 200) {
+			        	return 'Looks like there was a problem. Status Code: ' + response.status;
+			      	}
+			      	response.json().then(function(data) {
+
+			      		console.log(data);
+			      		productDetailData  = data.data;
+			      		let mainImage = document.getElementById("mainImage");
+			      		mainImage.setAttribute("style","background-image: url(" + productDetailData.main_image + ")");
+
+			      		let titlePTag = document.getElementById("title");
+			      		let titleText = document.createTextNode(productDetailData.title);
+			      		titlePTag.appendChild(titleText);
+
+			      		let idPTag = document.getElementById("id");
+			      		let idText    = document.createTextNode(productDetailData.id);
+			      		idPTag.appendChild(idText);
+
+			      		let pricePTag = document.getElementById("price");
+			      		let priceText = document.createTextNode("TWD. " + productDetailData.price);
+			      		pricePTag.appendChild(priceText);
+
+			      		let notePTag  = document.getElementById("note");
+			      		let noteText = document.createTextNode("*" + productDetailData.note);
+			      		notePTag.appendChild(noteText);
+
+			      		let texturePTag  = document.getElementById("texture");
+			      		let textureText = document.createTextNode(productDetailData.texture);
+			      		texturePTag.appendChild(textureText);
+
+			      		let placePTag  = document.getElementById("place");
+			      		let placeText = document.createTextNode("產地/" + productDetailData.place);
+			      		placePTag.appendChild(placeText);
+
+			      		createOtherImages();
+			      		createVarientColors();
+			      		createVarientSizes();
+			      	}
+					)
+				}
+			)
+		}
+
+		function loadPage() {
+			var url = location.href;
+
+			if(url.indexOf('?')!=-1)
+			{
+			    var id = url.split('?')[1].substring(3);
+			}
+
+			loadProductDetails(id);
+		}
+
+		loadPage();
+
+	</script>
+	<script type="text/javascript" src="js/checkAccount.js"></script>
+</body>
+</html>

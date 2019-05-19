@@ -1,0 +1,76 @@
+/* Base Styles -------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+	margin: 0 auto;
+}
+
+.body-banner {
+	margin-top: 9.2vw;
+	width: 100%;
+	height: 32vw;
+	background-repeat: no-repeat;
+	background-position: center;
+  	background-size: cover;
+}
+
+.banner-story-main {
+	position: relative; left:15%; top:30%;
+	width: 32vw;
+	margin: 0;
+}
+
+.body-banner h2 {
+
+}
+
+.body-product {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	margin: 0 auto;
+	width: 60vw;
+}
+
+.productDiv {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	align-items: left;
+	justify-content: space-between;
+	width: 19vw;
+
+	margin-top: 3.5vw;
+}
+
+.productImg {
+	width: 19vw;
+}
+
+.colorDiv {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: left;
+	justify-content: flex-start;
+
+}
+
+.color {
+	margin: 20px 10px 20px 0;
+}
+
+
+/* Float Clearfix ------------------ */
+
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}

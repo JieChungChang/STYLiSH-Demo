@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>STYLiSH-Sign Up</title>
+	<link href='https://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+	<link href="../css/sign.css" rel="stylesheet">
+	<link href="../css/header.css" rel="stylesheet">
+	<link href="../css/footer.css" rel="stylesheet">
+</head>
+<body>
+	<header class="main-header clearfix">
+		<a class="header-icon-link" href="/"><img class="header-icon" alt="STYLiSH icon" src="../image/logo.png"></a>
+		
+		<ul class="navigation-list">
+         	<li style="border-left-style: none; padding-left: 0;"><a href="#">女裝</a></li>
+            <li><a href="#">男裝</a></li>
+            <li><a href="#">配件</a></li>
+        </ul>
+
+        <div class="flex-container"></div>
+        
+        <div class="header-right-wrapper">
+			<input class="header-search" type="text" name="text-input">
+			<img src="../image/cart.png">
+			<img id="member-detail-icon">
+		</div>
+
+		<div id="member-detail-sidebar">
+			<div id = "member-close-icon-div">
+				<a class="close"></a>
+			</div>
+
+			<div id="member-detail-content">
+				<p id="check-account-result"></p>
+				<input type="button" value="查看個人資料" id="user-profile-button">
+				<input type="button" value="登入" id="sign-in-button">
+
+				<input type="button" value="登出" id="log-out-button">
+			</div>
+
+		</div>
+
+	</header>
+
+	<div class="main-content">
+		<div class="sign-heading">註冊新帳號</div>
+		<div class="input-box">
+			<label>Name</label>
+			<input type="text" name="name" required />
+		</div>
+		
+		<div class="input-box">
+			<label>e-mail</label>
+			<input type="text" name="email" required />
+		</div>
+		
+		<div class="input-box ">
+			<label>password</label>
+			<input type="text" name="password" required />
+		</div>
+		
+		<div class="button-box">
+			<div onclick= "location.href='/user/sign.html';" id="changePageDiv">改為登入帳號</div>
+			<button type="submit" id="signup">註冊</button>
+		</div>
+
+		<div class="fb-box">
+			<label>FB Token</label> 
+			<input type="text" name="fbtoken" required />
+			<button type="submit" id="sendfbtoken"> 送出 </button>
+			<div class="fb-login-button" data-size="medium" data-button-type="login_with" data-auto-logout-link="false" data-use-continue-as="false" scope="public_profile,email" onlogin="checkLoginState();"></div><br/>
+		</div>
+		<div id="status"></div>
+		<div id='result'></div>
+	</div>
+
+	<!-- 檢查 token 機制 -->
+	<script type="text/javascript">
+		function pageLoad(){
+			if ( document.cookie.substring(13) ) {
+				document.location.replace('/user/userProfile.html');
+			} 
+		}
+
+		pageLoad();
+	</script>
+
+	<!-- FBLOGIN SDK -->
+	<script>
+		window.fbAsyncInit = function() {
+			FB.init({
+			  appId      : '390870455058920',
+			  xfbml      : true,
+			  version    : 'v3.2'
+			});
+			FB.AppEvents.logPageView();
+		};
+
+		(function(d, s, id){
+			var js, fjs = d.getElementsByTagName(s)[0];
+			if (d.getElementById(id)) {return;}
+			js = d.createElement(s); js.id = id;
+			js.src = "https://connect.facebook.net/en_US/sdk.js";
+			fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));
+
+		// This is called with the results from from FB.getLoginStatus().
+		function statusChangeCallback(response) {
+			console.log('statusChangeCallback');
+			console.log(response);
+			// The response object is returned with a status field that lets the
+			// app know the current login status of the person.
+			// Full docs on the response object can be found in the documentation
+			// for FB.getLoginStatus().
+			if (response.status === 'connected') {
+				// Logged into your app and Facebook.
+			  	testAPI(response);
+			} else if (response.status === 'not_authorized') {
+			  	// The person is logged into Facebook, but not your app.
+			  	document.getElementById('status').innerHTML = 'Please log ' +
+			    'into this app.';
+			} else {
+			  	// The person is not logged into Facebook, so we're not sure if
+			  	// they are logged into this app or not.
+			  	document.getElementById('status').innerHTML = 'Please log ' +
+			    'into Facebook.';
+			}
+		}
+
+		// This function is called when someone finishes with the Login
+		// Button.  See the onlogin handler attached to it in the sample
+		// code below.
+		function checkLoginState() {
+			FB.getLoginStatus(function(response) {
+				statusChangeCallback(response);
+			});
+		}
+
+		// Here we run a very simple test of the Graph API after login is
+      	// successful.  See statusChangeCallback() for when this call is made.
+      	function testAPI(sererResponse) {
+	        FB.api('/me', function(response) {
+	        	document.getElementById('status').innerHTML += 'Thanks for logging in, ' + response.name + '!<br/>User ID: '
+	        });
+
+	        FB.api('/me', function(response) {
+	        	document.getElementById('status').innerHTML += response.id;
+	        });
+
+	        //使用 FB Server Token 到後端
+	        var requestData = {
+		        "provider"     : "Facebook",
+		        "access_token" : sererResponse.authResponse.accessToken
+		    }
+
+		    var data = JSON.stringify(requestData);
+
+			var xhr = new XMLHttpRequest();
+			// xhr.open("POST", "/user/facebooksignin", false);
+			xhr.open("POST", "/api/1.0/user/signin", false);
+			xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+			xhr.onreadystatechange = function () {
+			    if (xhr.readyState === 4 && xhr.status === 200) {
+			        var result = xhr.responseText;
+					document.getElementById('result').innerHTML = result;
+					pageLoad();//登入後重新刷新頁面 為了讓頁面取得 TOKEN 後會自動跳轉到 user profile
+			    }
+			};
+			
+			xhr.send(data);
+		}
+	</script>
+
+	<!-- FB Customized login button Javascript SDK -->
+	<div id="fb-root"></div>
+	<script async defer src="https://connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v3.2&appId=390870455058920&autoLogAppEvents=1"></script>
+	<script>
+		var signupButton  = document.querySelector("#signup");
+		var fbtokenButton = document.querySelector("#sendfbtoken");
+
+		signupButton.onclick = function(){
+			var name      = document.getElementsByTagName("input")["name"].value;
+			var email     = document.getElementsByTagName("input")["email"].value;
+			var password  = document.getElementsByTagName("input")["password"].value;
+			
+			var requestData = {
+		        "name"      : name,
+		        "email"     : email,
+		        "password"  : password
+		    }
+
+		    var data = JSON.stringify(requestData);
+
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "/api/1.0/user/signup", false);
+			xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+			xhr.onreadystatechange = function () {
+			    if (xhr.readyState === 4 && xhr.status === 200) {
+			       	var result = xhr.responseText;
+					document.getElementById('result').innerHTML = result;
+					pageLoad();//登入後重新刷新頁面 為了讓頁面取得 TOKEN 後會自動跳轉到 user profile
+			    }
+			};
+			
+			xhr.send(data);
+
+			document.getElementsByTagName("input")["name"].value     = "";
+			document.getElementsByTagName("input")["email"].value    = "";
+			document.getElementsByTagName("input")["password"].value = "";
+		}
+
+		fbtokenButton.onclick = function(){
+			var fbtokenValue = document.getElementsByTagName("input")["fbtoken"].value;
+
+			//使用 FB Server Token 到後端
+	        var requestData = {
+		        "provider"     : "Facebook",
+		        "access_token" : fbtokenValue
+		    }
+
+		    var data = JSON.stringify(requestData);
+
+			var xhr = new XMLHttpRequest();
+			// xhr.open("POST", "/user/facebooksignin", false);
+			xhr.open("POST", "/api/1.0/user/signin", false);
+			xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+			xhr.onreadystatechange = function () {
+			    if (xhr.readyState === 4 && xhr.status === 200) {
+			        var result = xhr.responseText;
+					document.getElementById('result').innerHTML = result;
+					pageLoad();//登入後重新刷新頁面 為了讓頁面取得 TOKEN 後會自動跳轉到 user profile
+			    }
+			};
+			
+			xhr.send(data);
+		}
+
+	</script>
+	<footer class="main-footer">
+		<ul class="footer-navigation-list">
+         	<li><a href="#" style="border-left-style: none; padding-left: 0;">關於 STYLiSH</a></li>
+            <li><a href="#">服務條款</a></li>
+            <li><a href="#">隱私政策</a></li>
+            <li><a href="#">聯絡我們</a></li>
+            <li><a href="#">FAQ</a></li>
+        </ul>
+        <div class="image-box">
+        	<img src="../image/line.png">
+        	<img src="../image/twitter.png">
+        	<img src="../image/facebook.png">
+        </div>
+        <span class="copyright">&copy;2018 All rights reserved.</span>
+	</footer>
+	<script type="text/javascript" src="../js/checkAccount.js"></script>
+</body>
+</html>

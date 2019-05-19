@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Create New Data</title>
+</head>
+<body>
+	<form action="/admin/createProduct" method="post" enctype="multipart/form-data">
+		<h2>新增產品基本資料</h2>
+		<p><label>Product ID</label>   <input type="text" name="assign_id" required>
+		<p><label>Product Name</label> <input type="text" name="title" required>
+		<p><label>description</label>  <input type="text" name="description" required>
+		<p><label>price</label>        <input type="text" name="price" required>
+		<p><label>texture</label>      <input type="text" name="texture" required>
+		<p><label>wash</label>         <input type="text" name="wash" required>	
+		<p><label>place</label>        <input type="text" name="place" required>
+		<p><label>category</label>     <input type="text" name="category" required>
+		<p><label>note</label>         <input type="text" name="note">
+		<p><label>story</label>        <input type="text" name="story" required>
+    	<p><label>Photo</label>        <input type="file" name="mainPhoto" required>
+    	<p><label>Others Photo</label> <input type="file" name="otherPhoto" required multiple>
+		<p><input type="submit" value="新增">
+	</form>
+	<br>
+	<br>
+	<a href="/admin">返回主頁</a><br>
+</body>
+</html>
